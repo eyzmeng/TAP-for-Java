@@ -1,0 +1,4 @@
+*.class
+.exists
+/embed.java
+/import.java

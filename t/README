@@ -1,0 +1,5 @@
+You *know* what to test this with, right?
+The NAME of this repo makes it very clear....
+
+(If you still don't get the clue: yes, you use TAP.
+Any consumer, the prove(1perl) command or whatever.)

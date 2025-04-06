@@ -1,0 +1,84 @@
+This is TAP for Java!
+
+= What is TAP? =
+
+TAP <https://testanything.org/> is a testing protocol.
+Its syntax is perhaps best illustrated with an example:
+
+$ java FrontendTests 4..4
+1..7
+# Start subtest 4
+ok 1 - load songs.csv OK
+ok 2 - speed 135 OK
+ok 3 - show 5 OK
+ok 4 - Five songs printed
+ok 5 - Partition is 1st least loud song, at dB -12
+not ok 6 # TODO Moana is 2nd least loud song, at dB -10
+# Assertion 6 `TODO Moana is 2nd least loud song, at dB -10' failed:
+#       at FrontendTests$Tester.test4(FrontendTests.java:622)            
+# Verdict: element 1 of vector [                                         
+#    Partition, How Far I'll Go - From Moana, Kills You Slowly,          
+#    Talk (feat. Disclosure), Love Incredible (feat. Camila Cabello)     
+# ] != How Far I'll Go - From "Moana"                                    
+#       got: java.lang.String - How Far I'll Go - From Moana             
+#  expected: java.lang.String - How Far I'll Go - From "Moana"           
+ok 7 - The 3rd-5th least loud songs are at dB -9
+# End of subtest 4
+# Ran 7 tests and failed 0 tests.
+# You still have 1 TODO test to go.
+
+We specifically target Version 12.
+
+= Why TAP? Why not JUnit5? =
+
+TAP has this thing call a PLAN: should there be a System.exit(0)
+somewhere, JVM will dutifully terminate with a successful $?.
+The plan serves as a sort of checksum to protect against that.
+
+It is possible to scan for /^Test run finished after / when
+JUnit is executed with any --details other than "none", but
+that requires more work than simply checking $?.
+
+See also <https://www.nntp.perl.org/group/perl.qa/2009/03/msg12104.html>.
+
+= Who for? =
+
+For me -- obviously. ;)
+
+Sorry, but that's the only way to explain why there are so many
+ridiculous constraints around.  The course staff in my CS class
+don't really expect us to write our own libraries, so I'd have to
+come up with nasty ways to "share" code between classes.
+
+In general I look out for a few constraints:
+
+   * No "external" classes: code must compile even with the
+     dumbest possible `javac -cp .:../junit5.jar *.java' command.
+     This pretty much means the only context we may be used in are:
+     (1) embed the code directly and (2) a package-private class.
+
+   * No external dependencies (this is obvious.)
+
+   * Avoid states -- well, I used to.  Now that they don't use a
+     signature checker anymore, this constraint is nullified.
+
+   * Avoid imports -- again, this is a previous constraint.
+     Not at all relevant; just look at how I use reflection
+     API recklessly... they don't bat an eye, I tell you.
+
+The one time I had to use this on three different classes, each
+inheriting from a previous one, I embedded a giant block of ~800
+lines of private states and methods in the root class and let
+inheritance do the rest.  It was *insanely* successful.
+
+And now we are here... and I want to do it again; though this
+time (1) without inheritance and (2) without copying scattered
+code between my projects and forgetting which one's the "best".
+(That's just another way of saying I am versioning it!!)
+
+= Copyright and things =
+
+I wrote the code at the cost of my grades
+so I deserve to be credited. :)
+
+See copyright in COPYING.

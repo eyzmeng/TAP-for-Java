@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+die () { >&2 echo "$*"; exit 1; }
+[ $# -eq 1 ] || die "usage: $0 classname"
+
+class=$1
+sed s/__CLASS__/"$class"/ src/body.java | cat src/head.java - > embed.java
+cp src/import.java import.java
