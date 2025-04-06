@@ -1,5 +1,21 @@
 This is TAP for Java!
 
+There are currently two "releases" of sources.
+Neither are for production use, but feel free to
+give it a shot.
+
+VERSION 0.1.6
+./gen-embed CLASSNAME
+   => import.java        import statements
+   => embed.java         code to include in your class verbatim
+
+VERSION 0.2 (ALPHA)
+src/TapTest.java
+   can be used in a default package, a named package
+   (just put "org.rapidcow.test" or something...)
+   *or* a package-private class, by removing "public"
+   in front of the public class.
+
 = What is TAP? =
 
 TAP <https://testanything.org/> is a testing protocol.

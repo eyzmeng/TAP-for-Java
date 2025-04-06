@@ -1,0 +1,29 @@
+0.2_01   2025 Apr 05, 06
+This is a second attempt that shifts away from the
+model of inheritance.  It tries to separate the test
+runner from the tests themselves.  The minor version
+bump is there not only because this is a new week
+project, but also that, as you can imagine, it is
+essentially incompatible with the embedded version.
+
+This is also where I will try to stabilize the API,
+so there will be greater promises... though for now it
+will be an alpha for myself (and maybe people?) to try.
+
+0.1.6    2025 Feb 24, Mar 5, 6, 7, 13, 14, 15
+This was a first attempt at reorganizing test code.
+Most prominently, there is now exec () that supports
+testing classes that are not ours.  Several utility
+methods like note (), skip () and fail () for a variable
+number of tests, and (with some reluctance) is () are
+added as well.  It has been added as src/body.java and
+can be generated using `./gen-embed CLASSNAME'.  An
+example using this can be found in `BinarySearchTree.java',
+which has been written from scratch exclusively for the
+purpose of demonstration.
+
+0.1      2025 Jan 26 - 29
+The initial versions of `TAP for Java' was
+embedded throughout Binary Search Tree classes.
+There is little worth in revisiting these, as they
+rely on very much hard-coded stuff.
