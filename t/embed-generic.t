@@ -83,6 +83,8 @@ ok 11 - Iterator exhausted
 # Ran 11 tests and failed 0 tests.
 EOF
 
+note (`java -cp $tmp BinarySearchTree -t`);
+
 sub cat
 {
 	open my $fh, '<', shift	or return "error: $!";

@@ -11,7 +11,24 @@ import java.util.SortedMap;
 import java.util.Stack;
 import java.util.Objects;
 
-/* inspired by https://algs4.cs.princeton.edu/32bst/BST.java.html */
+/* Despite synonymous with a similar class in my CS class,
+ * it has been re-written from scratch and is now released
+ * under the same license as the code itself.
+ *
+ * THERE PROBABLY WILL BE BUGS, THIS IS JUST AN EXAMPLE OF
+ * HOW YOU MAY USE THIS TO TEST YOUR CODE, NOT AN EXAMPLE
+ * OF A DECENTLY WRITTEN BINARY TREE (I wrote this in like
+ * 3 hours don't judge me) */
+
+/* partly inspired by https://algs4.cs.princeton.edu/32bst/BST.java.html;
+ * some wacky parts are based on Java source code from the Net */
+
+/**
+ * Baby version of java.util.TreeMap.
+ *
+ * @param <K> key with a natural ordering
+ * @param <V> value
+ */
 public class BinarySearchTree<K,V>
 extends AbstractMap<K,V> implements SortedMap<K,V>
 {
@@ -19,8 +36,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
     extends AbstractMap.SimpleEntry<K,V>
     {
         @java.io.Serial
-        private static final long serialVersionUID =
-            0x7424_c5aabaf6dd8eL;
+        private static final long serialVersionUID = 0x7424c5aabaf6dd8eL;
 
         private Entry<K,V> left;
         private Entry<K,V> right;
@@ -31,10 +47,20 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
         }
     }
 
+    // this is for submap...
+    private BinarySearchTree<K,V> self;
     private Entry<K,V> root;
+
+    private Entry<K,V> root () { if (self == null) return root; else return self.root(); }
+    private void set_root (Entry<K,V> king) { if (self == null) root = king; else self.set_root(king); }
+
     private Comparator<? super K> comparator;
 
     private int size;
+
+    public int size () { if (self == null) return size; else return self.size(); }
+    private void incr_size () { if (self == null) size++; else self.incr_size(); }
+    private void decr_size () { if (self == null) size++; else self.decr_size(); }
 
     private K lower;
     private K upper;
@@ -93,7 +119,8 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
     private SortedMap<K,V> view(K lower, K upper) {
         BinarySearchTree<K,V> view =
             new BinarySearchTree<K,V>(this.comparator);
-        view.root = root;
+        view.self = this;
+        view.comparator = comparator;
         view.lower = lower;
         view.upper = upper;
         return view;
@@ -101,6 +128,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
 
     @Override public K firstKey()
     {
+        Entry<K,V> root = root();
         if (root == null) {
             throw new NoSuchElementException();
         }
@@ -113,6 +141,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
 
     @Override public K lastKey()
     {
+        Entry<K,V> root = root();
         if (root == null) {
             throw new NoSuchElementException();
         }
@@ -144,7 +173,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
         Entry<K,V> next;
         Entry<K,V> node;
         int delta;
-        next = root;
+        next = root();
         do {
             node = next;
             delta = compare(key, node.getKey());
@@ -184,7 +213,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
     public class EntrySet extends AbstractSet<Map.Entry<K,V>>
     {
         @Override public int size() {
-            return BinarySearchTree.this.size;
+            return BinarySearchTree.this.size();
         }
 
         @Override public boolean remove(Object o) {
@@ -200,7 +229,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
             Entry<K,V> last;
             Entry<K,V> node;
             last = null;
-            node = BinarySearchTree.this.root;
+            node = BinarySearchTree.this.root();
             while (node != null) {
                 last = node;
                 int delta = compare(key, node.getKey());
@@ -219,7 +248,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
                 node.getValue(), entry.getValue()))
             {
                 delete(last, node);
-                size++;
+                size--;
                 return true;
             }
             return false;
@@ -239,7 +268,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
 
         private EntryIterator()
         {
-            root = BinarySearchTree.this.root;
+            root = BinarySearchTree.this.root();
             min = BinarySearchTree.this.lower;
             max = BinarySearchTree.this.upper;
 
@@ -264,12 +293,12 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
             }
         }
 
-        public boolean hasNext()
+        @Override public boolean hasNext()
         {
             return adv (false) != null;
         }
 
-        public Map.Entry<K,V> next()
+        @Override public Map.Entry<K,V> next()
         {
             try {
                 return Objects.requireNonNull( adv (true) );
@@ -279,12 +308,26 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
             }
         }
 
+        @Override public void remove()
+        {
+            if (lc == null) {
+                throw new IllegalStateException("nothing to remove");
+            }
+            BinarySearchTree.this.delete(ld, lc);
+            BinarySearchTree.this.decr_size();
+            ld = null;
+            lc = null;
+        }
+
         /* This bit of esoteric code is from my iterator homework
          * (proudly NOT following the template they gave us (which
          * is also to say, it shouldn't be encumbered by whatever
          * copyright they have over their mediocre course)) */
 
         /** Cache. */ Entry<K,V> c;
+        /** Parent node. */ Entry<K,V> d;
+        /** Last node. */ Entry<K,V> lc;
+        /** Last parent node. */ Entry<K,V> ld;
 
         /**
          * Advance in-order traversal.
@@ -298,7 +341,10 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
             if (c != null) {
                 ret = c;
                 if (nxt) {
+                    lc = c;
+                    ld = d;
                     c = null;
+                    d = null;
                 }
             }
             else {
@@ -313,7 +359,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
                  */
                 while (!stack.isEmpty()) {
                     urn = stack.pop();
-                    if ( max == null || - compare(max, urn.getKey()) <= 0 ) {
+                    if ( max == null || - compare(max, urn.getKey()) < 0 ) {
                         ret = urn;
                         break;
                     }
@@ -321,6 +367,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
                 }
                 if (!nxt) {
                     c = ret;
+                    d = stack.isEmpty() ? null : stack.peek();
                 }
                 /* find the in-order successor of ret */
                 if (ret != null) {
@@ -384,6 +431,8 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
 
     private void DELETE(Entry<K,V> parent, Entry<K,V> disowned)
     {
+        if (parent == null) { set_root(null); return; }
+
         if (parent.left == disowned)        parent.left = null;
         else if (parent.right == disowned)  parent.right = null;
         else throw new IllegalStateException();
@@ -392,6 +441,8 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
     private void REPLACE(Entry<K,V> parent,
         Entry<K,V> disowned, Entry<K,V> adoptee)
     {
+        if (parent == null) { set_root(adoptee); return; }
+
         if (parent.left == disowned)        parent.left = adoptee;
         else if (parent.right == disowned)  parent.right = adoptee;
         else throw new IllegalStateException();
@@ -412,7 +463,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
      */
     public int avail ()
     {
-        return 1;
+        return 2;
     }
 
     /**
@@ -422,7 +473,7 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
      */
     public int subplan (int test)
     {
-        return test == 1 ? 11 : 0;
+        return test == 1 ? 11 : test == 2 ? 8 : 0;
     }
 
     /**
@@ -478,21 +529,58 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
         }
 
         String[] chrmap = "ACEHLMPRSX".split("");
-        int[] expect = {8, 4, 12, 5, 11, 9, 10, 3, 0, 7};
-        Iterator<Map.Entry<String, Integer>> iterator
-            = counter.entrySet().iterator();
-        for (int i = 0; i < expect.length; ++i) {
-            String name = chrmap[i] + " " + expect[i];
-	    Map.Entry<String, Integer> entry;
+        Integer[] expect = {8, 4, 12, 5, 11, 9, 10, 3, 0, 7};
+        map_is (counter, chrmap, expect, "");
+        return done_subtest();
+    }
+
+    /**
+     * Deletion.
+     */
+    public boolean test2() {
+        init_subtest(2);
+        SortedMap<Integer, String> grades
+            = new BinarySearchTree<>();
+        grades.put(60, "D");
+        grades.put(70, "C");
+        grades.put(80, "B");
+        grades.put(40, "F");
+        grades.put(90, "AB");
+        grades.put(93, "A");
+        grades.put(100, "h4cker");
+
+        /* don't want anything less than B */
+        SortedMap<Integer, String> view = grades.headMap(80);
+        Integer[] badgrades = {40, 60, 70};
+        String[] badletter = {"F", "D", "C"};
+        map_is (view, badgrades, badletter, "bad grade ");
+
+        view.clear();
+        Integer[] gudgrades = {80, 90, 93, 100};
+        String[] gudletter = {"B", "AB", "A", "h4cker"};
+        map_is (grades, gudgrades, gudletter, "gud grade ");
+        return done_subtest();
+    }
+
+    /* Note that this is equivalent to N+1 tests */
+    private <K,V> boolean map_is(
+        Map<K,V> got, K[] keys, V[] values, String lab
+    ) {
+        boolean good = true;
+        Iterator<Map.Entry<K,V>> iterator
+            = got.entrySet().iterator();
+        for (int i = 0; i < keys.length; ++i) {
+            String name = lab + keys[i] + " " + values[i];
+	    Map.Entry<K,V> entry;
             try {
                 entry = iterator.next();
             }
             catch (NoSuchElementException e) {
-                ok (false, name + "\nIterator exhausted");
+                good &= ok (false, name + "\nIterator exhausted", 1);
                 continue;
             }
-            is (entry, new AbstractMap.SimpleEntry<String, Integer>
-                (chrmap[i], expect[i]), name);
+            is (entry, new AbstractMap.SimpleEntry<K, V>
+                (keys[i], values[i]), name);
         }
         boolean end = false;
         try {
@@ -501,8 +589,8 @@ extends AbstractMap<K,V> implements SortedMap<K,V>
         catch (NoSuchElementException e) {
             end = true;
         }
-        ok (end, "Iterator exhausted");
-        return done_subtest();
+        good &= ok (end, "Iterator exhausted", 1);
+        return good;
     }
 
 //embed.java//

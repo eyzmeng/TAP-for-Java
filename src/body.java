@@ -793,7 +793,7 @@
                 diag (
                     "Test%s aborted with an "
                     + "exception: %s", todo.length > 1
-                    ? String.format(" %d") : "", verdict
+                    ? String.format(" %d", t) : "", verdict
                 );
                 if (diagnosis != null) {
                     diag ("Stack trace:");
