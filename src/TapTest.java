@@ -729,7 +729,7 @@ public class TapTest
             Method test;
 
             try {
-                test = type.getDeclaredMethod(testName);
+                test = type.getDeclaredMethod(testName, TapTest.class);
             }
             catch (NoSuchMethodException e) {
                 fail ("Method " + testName + " not found");
