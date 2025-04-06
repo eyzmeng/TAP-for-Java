@@ -461,13 +461,6 @@
     /* Main program (involves heavy reflection code) */
 
     /**
-     * Whether to print stack trace on test failure
-     * or any uncaught exception.
-     * See the --trace option in {@link #exec}.
-     */
-    private static boolean printTrace = false;
-
-    /**
      * Entry point.
      *
      * @param prog argument 0; program name
@@ -488,6 +481,7 @@
 
         // options
         boolean status = false;
+	boolean printTrace = false;
 
         int[] rangeLo = new int[args.length];
         int[] rangeHi = new int[args.length];
@@ -767,7 +761,6 @@
                 }
                 continue;
             }
-            boolean result;
             String verdict = null;
             String[] diagnosis = null;
             try {
@@ -892,8 +885,9 @@
                 .stream().map(String::valueOf)
             /* Without this, Java would think this is an Object[] */
                 .toArray(String[]::new));
-            diag ("You passed TODO tests " + celebrate +
-                  "! Nicely done.");
+            diag ("You passed TODO test"
+                + (subdone.size() == 1 ? " " : "s ")
+                + celebrate + "! Nicely done.");
             diag ("You may tick %s off your bucket list now.",
                   subdone.size() == 1 ? "that" : "those");
         }
