@@ -547,7 +547,7 @@ public class TapTest
 
         int optind = 0;
         final String USAGE = String.format(
-            "usage: %s [-e] [-t] [[-i] <range>...] [-x <range>...]",
+            "usage: %s [[-i] <range>...] [-x <range>...]",
             prog
         );
 
