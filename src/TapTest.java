@@ -775,9 +775,18 @@ public class TapTest
                 continue;
             }
             catch (InvocationTargetException e) {
-                fail ("Method " + testName + " aborted "
-                    + "with an exception");
-                confess (e.getCause());
+                Throwable c;
+                if (e.getCause() instanceof ExceptionInInitializerError) {
+                    fail ("Method " + testName + " aborted "
+                        + "due to class-init exception");
+                    c = e.getCause().getCause();
+                }
+                else {
+                    fail ("Method " + testName + " aborted "
+                        + "with a runtime exception");
+                    c = e.getCause();
+                }
+                confess (c);
                 count = goal;
                 offense = true;
             }
