@@ -1015,8 +1015,8 @@ public class TapTest
         boolean embedded = origin < 0;
         note ("End of subtest %d", subtest);
         note ("Ran %d test%s and failed %d test%s.",
-                subcount, "s".repeat(subcount == 1 ? 0 : 1),
-                subfail, "s".repeat(subfail == 1 ? 0 : 1));
+                subcount, subcount == 1 ? "" : "s",
+                subfail, subfail == 1 ? "" : "s");
         if (embedded && !subdone.isEmpty()) {
             /* String.join wants an array/iterable of CharSequences.
              * Fair enough... but I don't want anything more than a
@@ -1037,7 +1037,7 @@ public class TapTest
         }
         if (subtodo > 0) {
             log (!embedded, "You still have %d TODO test%s to go.",
-                subtodo, "s".repeat(subtodo == 1 ? 0 : 1));
+                subtodo, subtodo == 1 ? "" : "s");
         }
         if (subfail > 0) {
             log (!embedded, "It seems that subtest %d failed. "
@@ -1048,8 +1048,8 @@ public class TapTest
             if (subplan > 0 && subcount != subplan) {
                 diag ("Bad plan! Subtest %d planned to run %d test%s, "
                     + "but ended up running %d test%s.",
-                    subtest, subplan, "s".repeat(subplan == 1 ? 0 : 1),
-                    subcount, "s".repeat(subcount == 1 ? 0 : 1));
+                    subtest, subplan, subplan == 1 ? "" : "s",
+                    subcount, subcount == 1 ? "" : "s");
                 return false;
             }
         }
