@@ -1,9 +1,11 @@
 import java.io.StringWriter;
 import java.io.PrintWriter;
-import java.util.stream.IntStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.IntStream;
+import java.util.function.Supplier;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -67,21 +69,6 @@ public class TapTest
     protected int failed ()
     {
         return fail;
-    }
-
-    /**
-     * For the more meta-fails.  We don't count how
-     * many times they've happened; we just know.
-     */
-    private boolean offense = false;
-
-    /**
-     * {@return whether the test is failing}
-     * @since 0.2
-     */
-    protected boolean failing ()
-    {
-        return offense || fail != 0;
     }
 
     /**
@@ -157,7 +144,7 @@ public class TapTest
      * see if it went to plan, or print out the plan
      * if we never announced our plan.  If things did
      * not go to plan, we'll present the plan and the
-     * reality.  Then exit with a {@literal >0} status.
+     * reality.  Then return a nonzero value (i.e. true).
      * <p>
      * In the latter scenario (i.e. we never announced
      * our plan), if the number of tests run is zero,
@@ -679,48 +666,62 @@ public class TapTest
     }
 
     /**
+     * Make a plan, the vector version.
+     *
+     * @param plan your multitudinous list of plans
+     * @return your best plan in aggregate
+     */
+    public int plan (int[] plan)
+    {
+        /* Holy moly i love you Java 8 */
+        return plan ( IntStream.of(plan).sum() );
+    }
+
+    /* Flags for run output. (I don't want an enum since
+     * that would compile to a different class file)
+     *
+     * This should go without saying, but DO NOT RELY
+     * on these concretely values; use them with the name
+     * I gave them.  It is reasonable to assume that I
+     * won't need more than 32 bits though. */
+
+    /** One or more bad subplans. */
+    public static final int EX_BADPLAN = 0x0001;
+
+    /** One or more test methods not found. */
+    public static final int EX_NOTMETH = 0x0002;
+
+    /** Runtime exception. */
+    public static final int EX_BADMETH = 0x0004;
+    /** Static initializer error. */
+    public static final int EX_BADINIT = 0x0008;
+    /** Invocation error. */
+    public static final int EX_BADCALL = 0x0010;
+
+    /** Constructor (factory) error. */
+    public static final int EX_ERRINIT = 0x0020;
+
+    /**
      * Execute tests on another object.  Will use reflection magic.
+     * Note that the return status only concerns itself with fatal
+     * errors, not test errors; that is usually the responsibility
+     * for TAP consumers.  The only exception is EX_BADPLAN, which
+     * you may filter out if you think it miscounted.
      *
      * @param todo list of test numbers
      * @param plan list of plans; must have the same dimensions
-     * @param type the class that defines the tests; must define
-     *   a zero-argument constructor
-     * @return pass or fail
+     * @param factory a function that returns a reference to
+     *   a fresh test object
+     * @return error status; see the EX_* flags
      * @since 0.2
      */
-    public boolean execv (int[] todo, int[] plan, Class<?> type)
+    public int run (int[] todo, int[] plan, Supplier<?> factory)
     {
-        // reset run state
-        offense = false;
-
-        int total = 0;
-        for (int planet : plan) {
-            total += planet;
-        }
-
-        if (total == 0) {
-            skip_all ("nothing to test");
-            return false;
-        }
-        else {
-            plan (total);
-        }
-
-        Constructor<?> init;
-        try {
-            init = type.getDeclaredConstructor();
-        }
-        catch (NoSuchMethodException e) {
-            skip_all ("failed to acquire zero-argument constructor "
-                + "of " + type.getName() + ": " + e);
-            offense = true;
-            return true;
-        }
+        int offense = 0;
 
         for (int i = 0; i < todo.length; ++i) {
             int t = todo[i];
             int planet = plan[i];
-            int goal = count + planet;
             String testName = "test" + t;
 
             Object user;
@@ -729,36 +730,29 @@ public class TapTest
             Method test;
 
             try {
-                test = type.getDeclaredMethod(testName, TapTest.class);
+                user = factory.get();
             }
-            catch (NoSuchMethodException e) {
-                fail ("Method " + testName + " not found");
+            catch (Exception e) {
+                diag (testName + ": construction failed");
                 confess (e);
-                count = goal;
-                offense = true;
+                offense |= EX_ERRINIT;
                 continue;
             }
 
-            try {
-                user = init.newInstance();
-            }
-            catch (InstantiationException
-                    | IllegalAccessException
-                    | IllegalArgumentException e)
-            {
-                fail ("Failed to construct new object "
-                    + "for " + testName);
-                confess (e);
-                count = goal;
-                offense = true;
+            if (user == null) {
+                diag (testName + ": constructor returned null");
+                offense |= EX_ERRINIT;
                 continue;
             }
-            catch (InvocationTargetException e) {
-                fail ("Constructor threw an exception while "
-                    + "constructing new object for " + testName);
-                confess (e.getCause());
-                count = goal;
-                offense = true;
+
+            Class<?> type = user.getClass();
+            try {
+                test = type.getDeclaredMethod(testName, TapTest.class);
+            }
+            catch (NoSuchMethodException e) {
+                diag (testName + ": method not found");
+                confess (e);
+                offense |= EX_NOTMETH;
                 continue;
             }
 
@@ -768,42 +762,175 @@ public class TapTest
             catch (IllegalAccessException
                     | IllegalArgumentException e)
             {
-                fail ("Failed to invoke " + testName);
+                diag (testName + ": invocation error");
                 confess (e);
-                count = goal;
-                offense = true;
+                offense |= EX_BADCALL;
                 continue;
             }
             catch (InvocationTargetException e) {
                 Throwable c;
                 if (e.getCause() instanceof ExceptionInInitializerError) {
-                    fail ("Method " + testName + " aborted "
-                        + "due to class-init exception");
+                    diag (testName + ": static initializer error");
                     c = e.getCause().getCause();
+                    offense |= EX_BADINIT;
                 }
                 else {
-                    fail ("Method " + testName + " aborted "
-                        + "with a runtime exception");
+                    diag (testName + ": runtime exception/error");
                     c = e.getCause();
+                    offense |= EX_BADMETH;
                 }
                 confess (c);
-                count = goal;
-                offense = true;
+            }
+
+            /* We are more likely to use subtests than not, yes...
+             * But subtests are still SUB-tests -- we are going to
+             * report that for the FULL test here. */
+            int subcount = self.count();
+            int subfail = self.failed();
+            if (subcount != planet) {
+                diag (testName + " planned to run " + planet
+                    + " test" + "s".repeat(planet == 1 ? 0 : 1)
+                    + ", but ran " + subcount + " instead.");
+            }
+            offense |= EX_BADPLAN;
+            count += subcount;
+            fail = subfail;
+        }
+
+        return offense;
+    }
+
+    /**
+     * Execute tests that fails fast.  This had to be a
+     * separate method, because we need to throw anything.
+     * Primarily for use in jdb(1) since I have no idea how
+     * to jump to the stack frame of the cause exception
+     * rather than the exception itself.
+     * <p>
+     * Sorry for copy-and-pasting the whole thing; but I
+     * really can't think of a better way to add this feature.
+     *
+     * @param todo list of test numbers
+     * @param plan list of plans; must have the same dimensions
+     * @param factory a function that returns a reference to
+     *   a fresh test object
+     * @param fatal types of exceptions to make fatal
+     * @return error status; see the EX_* flags
+     * @throws NullPointerException if specifically
+     *   if {@code factory} returns null (for EX_ERRINIT)
+     * @throws IllegalStateException if the number of tests run
+     *   in any subtest does not match the provided subplan
+     *   (for EX_BADPLAN)
+     * @throws Throwable literally anything else
+     * @since 0.2
+     */
+    public int runff (int[] todo, int[] plan,
+        Supplier<?> factory, int fatal) throws Throwable
+    {
+        int offense = 0;
+
+        for (int i = 0; i < todo.length; ++i) {
+            int t = todo[i];
+            int planet = plan[i];
+            String testName = "test" + t;
+
+            Object user;
+            TapTest self = new TapTest();
+            self.subplan(planet);
+            Method test;
+
+            try {
+                user = factory.get();
+            }
+            catch (Exception e) {
+                diag (testName + ": construction failed");
+                offense |= EX_ERRINIT;
+                if ((fatal & offense) != 0) {
+                    throw e;
+                }
+                confess (e);
+                continue;
+            }
+
+            /* Performance-wise, I don't know if this does anything
+             * I'm just doing this because I finally just learned
+             * how to write functional Java (1.8) for once... :) */
+            if ((fatal & EX_ERRINIT) != 0) {
+                Objects.requireNonNull(testName,
+                    () -> testName + ": constructor returned null");
+            }
+            else {
+                if (user == null) {
+                    diag (testName + ": constructor returned null");
+                    offense |= EX_ERRINIT;
+                }
+                continue;
+            }
+
+            Class<?> type = user.getClass();
+            try {
+                test = type.getDeclaredMethod(testName, TapTest.class);
+            }
+            catch (NoSuchMethodException e) {
+                diag (testName + ": method not found in "
+                    + type.getName());
+                offense |= EX_NOTMETH;
+                if ((fatal & offense) != 0) {
+                    throw e;
+                }
+                confess (e);
+                continue;
+            }
+
+            try {
+                test.invoke(user, self);
+            }
+            catch (IllegalAccessException
+                    | IllegalArgumentException e)
+            {
+                diag (testName + ": invocation error");
+                offense |= EX_BADCALL;
+                if ((fatal & offense) != 0) {
+                    throw e;
+                }
+                confess (e);
+                continue;
+            }
+            catch (InvocationTargetException e) {
+                Throwable c;
+                if (e.getCause() instanceof ExceptionInInitializerError) {
+                    diag (testName + ": static initializer error");
+                    c = e.getCause().getCause();
+                    offense |= EX_BADINIT;
+                }
+                else {
+                    diag (testName + ": runtime exception/error");
+                    c = e.getCause();
+                    offense |= EX_BADMETH;
+                }
+                if ((fatal & offense) != 0) {
+                    throw c;
+                }
+                confess (c);
             }
 
             int subcount = self.count();
             int subfail = self.failed();
             if (subcount != planet) {
-                diag ("Method " + testName + " planned to run "
-                    + planet + " test" + "s".repeat(planet == 1 ? 0 : 1)
+                diag (testName + " planned to run " + planet
+                    + " test" + "s".repeat(planet == 1 ? 0 : 1)
                     + ", but ran " + subcount + " instead.");
-                offense = true;
+            }
+            offense |= EX_BADPLAN;
+            if ((fatal & offense) != 0) {
+                throw new IllegalStateException(
+                    testName + " subplan foiled");
             }
             count += subcount;
             fail = subfail;
         }
 
-        return failing();
+        return offense;
     }
 
     /*
