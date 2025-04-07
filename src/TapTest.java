@@ -7,7 +7,6 @@ import java.util.Objects;
 import java.util.stream.IntStream;
 import java.util.function.Supplier;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -539,7 +538,6 @@ public class TapTest
         );
 
         // options
-        boolean status = false;
 
         int[] rangeLo = new int[args.length];
         int[] rangeHi = new int[args.length];
