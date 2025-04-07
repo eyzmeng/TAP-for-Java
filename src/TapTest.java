@@ -178,8 +178,9 @@ public class TapTest
             }
         }
         else if (plan > 0 && count != plan) {
-            diag ("You planned to run %d test%s, but ran %d instead.",
-                plan, plan == 1 ? "" : "s", count);
+            diag ("You planned to run %d test%s, but %d test%s ran.",
+                plan, "s".repeat(plan == 1 ? 0 : 1),
+                count, count == 1 ? " was" : "s were");
             diag ("Seems like things did not go to plan.");
             return true;
         }
