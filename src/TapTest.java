@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationTargetException;
  * to use an independent class, as opposed to
  * directed inheritance.
  *
- * @version 0.2
+ * @version 0.2_01
  * @author Ethan Meng
  */
 public class TapTest
@@ -80,7 +80,7 @@ public class TapTest
      * (Previously, this was named ended. It feels silly
      * now, so I renamed it to just {@link #done}.)
      *
-     * @since 0.2
+     * @since 0.2_00
      */
     protected boolean done ()
     {
@@ -517,7 +517,7 @@ public class TapTest
      *   single negative number as error status
      * @throws IllegalArgumentException if {@code start}
      *   is negative, and other weird stuff happens
-     * @since 0.2
+     * @since 0.2_00
      */
     public static int[] parse_cmd (String prog,
         String[] args, int start, int avail)
@@ -711,7 +711,7 @@ public class TapTest
      * @param factory a function that returns a reference to
      *   a fresh test object
      * @return error status; see the EX_* flags
-     * @since 0.2
+     * @since 0.2_01
      */
     public int run (int[] todo, int[] plan, Supplier<?> factory)
     {
@@ -821,7 +821,7 @@ public class TapTest
      *   in any subtest does not match the provided subplan
      *   (for EX_BADPLAN)
      * @throws Throwable literally anything else
-     * @since 0.2
+     * @since 0.2_01
      */
     public int runff (int[] todo, int[] plan,
         Supplier<?> factory, int fatal) throws Throwable
@@ -964,7 +964,7 @@ public class TapTest
      * @param plan number of test cases expected for
      *   subsequent subtests to run, if positive; it is
      *   otherwise ineffective.
-     * @since 0.2
+     * @since 0.2_00
      */
     protected void subplan (int plan)
     {
