@@ -4,12 +4,17 @@ here is an example how to use it (replace <CLASS> with your class):
 
     public static void main(String[] args)
     {
-        TapTest t = new TapTest();
-        int[] todo = TapTest.parse_cmd("java <CLASS>", args, 1, 2);
+        /*
+         * Make START the starting index of your test (START >= 0)
+         * Make AVAIL the number of tests (START, START+1, ..START+AVAIL-1)
+         */
+
+        int[] todo = TapTest.parse_cmd("java <CLASS>", args, START, AVAIL);
         int[] plan = new int[todo.length];
 
         /* Map todo to plan somehow... (this part is left to you) */
 
+        TapTest t = new TapTest();
         t.plan (plan);
 
         int error;
@@ -36,6 +41,23 @@ here is an example how to use it (replace <CLASS> with your class):
          */
         System.exit(error & ~TapTest.EX_BADPLAN);
     }
+
+in your tests, accept TapTest as an argument and return
+whatever you like (void/boolean both work, just make sure
+the method parameter now takes an argument)
+
+    public boolean test8(TapTest t)
+    {
+        t.init_subtest(8);
+        t.ok(true, "Things looking good!");
+        return t.done_subtest();
+    }
+
+i am using a subtest because the plan you set goes into a
+subplan (with the number of tests run up to this point going
+into origin())... i'm not sure if you can make a normal plan
+out of that; but we're planning outside, so you can kind of
+see where i was going with this -- right :x
 
 everything else remains the same. the difference is things are
 more modular *while* being robust enough to get stuff done :)
