@@ -441,69 +441,103 @@ public class TapTest
 
     /**
      * {@code ok(1)} with no trace.
+     * <p>
+     * <b>Changed in 0.2_02</b>: this method now takes format
+     * parameters and returns true.
      *
      * @param mess a description
+     * @param args {@link String#format} arguments
      * @see #ok(boolean, String, boolean, int)
+     * @return true
      * @since 0.1
      */
-    public void pass (String mess) {
-        ok (true, mess, false, 0);
+    public boolean pass (String mess, Object... args) {
+        return ok (true, String.format(mess, args), false, 0);
     }
 
     /**
      * {@code ok(0)} with no trace.
+     * <b>Changed in 0.2_02</b>: this method now takes format
+     * parameters and returns false.
      *
      * @param mess a description
+     * @param args {@link String#format} arguments
      * @see #ok(boolean, String, boolean, int)
+     * @return false
      * @since 0.1
      */
-    public void fail (String mess)
+    public boolean fail (String mess, Object... args)
     {
-        ok (false, mess, false, 0);
+        return ok (false, String.format(mess, args), false, 0);
     }
 
     /**
      * Pass {@code count} tests.
+     * <p>
+     * <b>Changed in 0.2_02</b>: this method now takes format
+     * parameters and returns an int.
      *
      * @param count how many tests to pass
      * @param mess a description
+     * @param args {@link String#format} arguments
+     * @return number of tests passed
      * @since 0.1.6
      */
-    public void pass (int count, String mess)
+    public int pass (int count, String mess, Object... args)
     {
+        int w = 0;
         for (int i = 0; i < count; ++i) {
-            pass (mess);
+            pass (mess, args);
+            w++;
         }
+        return w;
     }
 
     /**
      * Fail {@code count} tests.
+     * <p>
+     * <b>Changed in 0.2_02</b>: this method now takes format
+     * parameters and returns an int.
      *
      * @param count how many tests to fail
      * @param mess a description
+     * @param args {@link String#format} arguments
+     * @return number of tests failed
      * @since 0.1.6
      */
-    public void fail (int count, String mess)
+    public int fail (int count, String mess, Object... args)
     {
+        int epicfail = 0;
         for (int i = 0; i < count; ++i) {
-            fail (mess);
+            fail (mess, args);
+            epicfail++;
         }
+        return epicfail;
     }
 
     /**
      * The much-needed complement to {@link skip_all}.  This skips
      * a specified number of tests that are marked uniformly with the
      * same message.
+     * <p>
+     * <b>Changed in 0.2_02</b>: this method now takes format
+     * parameters and returns an int.
      *
      * @param num number of tests to skip; only a positive number of
      *   {@code num} will be skipped.
      * @param mess skip message.  Multi-line is not supported.
+     * @param args {@link String#format} arguments
+     * @return number of tests skipped
      * @since 0.1.6
      */
-    public void skip (int num, String mess) {
+    public int skip (int num, String mess, Object... args)
+    {
+        int skippy = 0;
         for (int i = 0; i < num; ++i) {
-            ok (true, "SKIP " + mess);
+            ok (true, String.format("SKIP " + mess, args));
+            skippy++;
         }
+        return skippy;
     }
 
     /**
