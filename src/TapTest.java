@@ -100,7 +100,7 @@ public class TapTest
         e.printStackTrace(new PrintWriter(w));
         for (String line : w.toString().split("\\n"))
         {
-            diag (line);
+            diag ("%s", line);
         }
     }
 
