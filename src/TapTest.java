@@ -1,3 +1,29 @@
+/*
+ * The following is the second iteration of TAP for Java.
+ * The development is a bit more clearly documented from
+ * here on out; take a look at git blame and `Changes' at
+ * the top-level of the repository.
+ *
+ * I don't have any strict requirements for what you must
+ * put to credit me, but it should be something along the
+ * lines of this:
+ *
+ *     Copyright (c) 2025 Ethan Meng <ethan@rapidcow.org>
+ *     Licensed under the Modified 3-Clause BSD License.
+ *     You are free to re-distribute provided that this
+ *     notice and the above copyright header is retained.
+ *
+ * It's the same deal with Version 0.1 (src/head.java) as
+ * this one.  You can copy the header and footer from there
+ * if you want to; but this time we have class headers and
+ * all, so the placement is more up to you than a mindless
+ * copy-and-paste job before.
+ *
+ * This header itself and the Vim modeline are not necessary
+ * to keep.  (Actually, don't keep this at all; just replace
+ * me with a copyright notice already!)
+ */
+
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.ArrayList;
