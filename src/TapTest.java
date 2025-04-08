@@ -725,6 +725,7 @@ public class TapTest
             Object user;
             TapTest self = new TapTest();
             self.subplan(planet);
+            self.origin(count);
             Method test;
 
             try {
@@ -836,6 +837,7 @@ public class TapTest
             Object user;
             TapTest self = new TapTest();
             self.subplan(planet);
+            self.origin(count);
             Method test;
 
             try {
