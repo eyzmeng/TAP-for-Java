@@ -457,6 +457,7 @@ public class TapTest
 
     /**
      * {@code ok(0)} with no trace.
+     * <p>
      * <b>Changed in 0.2_02</b>: this method now takes format
      * parameters and returns false.
      *

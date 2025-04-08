@@ -1,5 +1,17 @@
 0.2_02   2025 Apr 08
     * Many methods are mistakenly labeled "protected".
+    * An egregious bug that makes confess()'ing exception die of
+      printf-format exception was caught, vanquished, and toasted
+      with the flames of a thousand suns
+    * A typo I missed while copying from v0.1 that causes batch
+      test numbers to start at 1 in each subtest has been corrected.
+    * fail(), pass(), skip() now take printf-format arguments.
+      (They also return more useful stuff than being void methods.)
+      Beware of the preceding bug; make sure to do this when
+      passing any unsuspecting strings:
+           fail ("%s", reason); /* reason might contain %s! */
+    - The howto guide has a bit more information (partly me
+      realizing how flawed this whole thing still is... eh)
 
 0.1.6_00 2025 Apr 07
 TAP v0.1 now enters maintenance status.  Its code
