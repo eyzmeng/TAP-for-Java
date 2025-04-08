@@ -15,7 +15,7 @@ import java.lang.reflect.InvocationTargetException;
  * to use an independent class, as opposed to
  * directed inheritance.
  *
- * @version 0.2_01
+ * @version 0.2_02
  * @author Ethan Meng
  */
 public class TapTest
