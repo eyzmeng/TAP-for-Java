@@ -1,3 +1,8 @@
+0.1.6_00 2025 Apr 07
+TAP v0.1 now enters maintenance status.  Its code
+will co-exist with @version 0.2 in this worktree,
+however beware that not all files apply everywhere.
+
 0.2_01   2025 Apr 07
 exec() is now split into plan(int[]), run() / runff()
 How? Why? read howto/ver0.2.txt to find out...
