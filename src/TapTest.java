@@ -30,7 +30,7 @@ public class TapTest
      * {@return the number of tests we ran}
      * @since 0.1
      */
-    protected int count ()
+    public int count ()
     {
         return count;
     }
@@ -51,7 +51,7 @@ public class TapTest
      * @see #plan(int)
      * @since 0.1
      */
-    protected int plan ()
+    public int plan ()
     {
         return plan;
     }
@@ -65,7 +65,7 @@ public class TapTest
      * {@return the number of tests failed}
      * @since 0.1
      */
-    protected int failed ()
+    public int failed ()
     {
         return fail;
     }
@@ -82,7 +82,7 @@ public class TapTest
      *
      * @since 0.2_00
      */
-    protected boolean done ()
+    public boolean done ()
     {
         return ended;
     }
@@ -94,7 +94,7 @@ public class TapTest
      * @see #diag
      * @since 0.1
      */
-    protected void confess (Throwable e)
+    public void confess (Throwable e)
     {
         StringWriter w = new StringWriter();
         e.printStackTrace(new PrintWriter(w));
@@ -123,7 +123,7 @@ public class TapTest
      * @see #plan()
      * @since 0.1
      */
-    protected int plan (int plan)
+    public int plan (int plan)
     {
         if (this.plan > 0) {
             throw new IllegalStateException("You already have a plan: " + this.plan);
@@ -158,7 +158,7 @@ public class TapTest
      *   lament to standard output
      * @since 0.1
      */
-    protected boolean done_testing ()
+    public boolean done_testing ()
     {
         if (ended) {
             throw new IllegalStateException("I thought we were done here!");
@@ -204,7 +204,7 @@ public class TapTest
      * @throws IllegalStateException if the test has ended
      * @since 0.1
      */
-    protected int skip_all (String reason)
+    public int skip_all (String reason)
     {
         if (ended) {
             throw new IllegalStateException("test has ended; there is nothing to skip");
@@ -229,7 +229,7 @@ public class TapTest
      * @param reason why you want to bail out
      * @since 0.1
      */
-    protected void bail_out (String reason)
+    public void bail_out (String reason)
     {
         System.out.println("Bail out! " + reason);
     }
@@ -249,7 +249,7 @@ public class TapTest
      *   the arguments to {@link String#format(String, Object...)}
      * @since 0.1
      */
-    protected void diag (String line, Object... args)
+    public void diag (String line, Object... args)
     {
         line = String.format(line, args);
         if (line.isBlank()) {
@@ -270,7 +270,7 @@ public class TapTest
      * @param args parameters for said format specs
      * @since 0.1.6
      */
-    protected void note (String line, Object... args)
+    public void note (String line, Object... args)
     {
         line = String.format(line, args);
         if (line.isBlank()) {
@@ -291,7 +291,7 @@ public class TapTest
      * @param args log parameters
      * @since 0.1.6
      */
-    protected void log (boolean ok, String line, Object... args)
+    public void log (boolean ok, String line, Object... args)
     {
         if (ok) {
             note (line, args);
@@ -311,7 +311,7 @@ public class TapTest
      * @return Am I okay
      * @since 0.1
      */
-    protected boolean ok (boolean ok, String mess)
+    public boolean ok (boolean ok, String mess)
     {
         return ok (ok, mess, 1);
     }
@@ -329,7 +329,7 @@ public class TapTest
      * @return Am I okay?
      * @since 0.1
      */
-    protected boolean ok (boolean ok, String mess, int stacklevel)
+    public boolean ok (boolean ok, String mess, int stacklevel)
     {
         boolean is_todo = mess.startsWith("TODO");
         return ok (ok, mess, !ok || is_todo, stacklevel + 2);
@@ -353,7 +353,7 @@ public class TapTest
      * @return Am I okay?
      * @since 0.1
      */
-    protected boolean ok (boolean ok, String mess, boolean trace, int stacklevel)
+    public boolean ok (boolean ok, String mess, boolean trace, int stacklevel)
     {
         String[] reasons = splitlines(mess);
         boolean unreasonable = reasons.length == 0;
@@ -446,7 +446,7 @@ public class TapTest
      * @see #ok(boolean, String, boolean, int)
      * @since 0.1
      */
-    protected void pass (String mess) {
+    public void pass (String mess) {
         ok (true, mess, false, 0);
     }
 
@@ -457,7 +457,7 @@ public class TapTest
      * @see #ok(boolean, String, boolean, int)
      * @since 0.1
      */
-    protected void fail (String mess)
+    public void fail (String mess)
     {
         ok (false, mess, false, 0);
     }
@@ -469,7 +469,7 @@ public class TapTest
      * @param mess a description
      * @since 0.1.6
      */
-    protected void pass (int count, String mess)
+    public void pass (int count, String mess)
     {
         for (int i = 0; i < count; ++i) {
             pass (mess);
@@ -483,7 +483,7 @@ public class TapTest
      * @param mess a description
      * @since 0.1.6
      */
-    protected void fail (int count, String mess)
+    public void fail (int count, String mess)
     {
         for (int i = 0; i < count; ++i) {
             fail (mess);
@@ -500,7 +500,7 @@ public class TapTest
      * @param mess skip message.  Multi-line is not supported.
      * @since 0.1.6
      */
-    protected void skip (int num, String mess) {
+    public void skip (int num, String mess) {
         for (int i = 0; i < num; ++i) {
             ok (true, "SKIP " + mess);
         }
@@ -968,7 +968,7 @@ public class TapTest
      *   otherwise ineffective.
      * @since 0.2_00
      */
-    protected void subplan (int plan)
+    public void subplan (int plan)
     {
         subplan = plan;
     }
@@ -981,7 +981,7 @@ public class TapTest
      * @param id the test index.  Used for informational reports.
      * @since 0.1.6
      */
-    protected void init_subtest (int id)
+    public void init_subtest (int id)
     {
         if (subtesting) {
             throw new IllegalStateException (
@@ -1004,7 +1004,7 @@ public class TapTest
      * @return the appropriate return value per P101/P102 requirements.
      * @since 0.1.6
      */
-    protected boolean done_subtest ()
+    public boolean done_subtest ()
     {
         if (!subtesting) {
             throw new IllegalStateException (
@@ -1068,7 +1068,7 @@ public class TapTest
      * @param offset the desired offset
      * @since 0.1.6
      */
-    protected void origin(int offset) { origin = offset; }
+    public void origin(int offset) { origin = offset; }
 
     /* Advanced test functions */
 
@@ -1084,7 +1084,7 @@ public class TapTest
      * @return whether {@code a} and {@code b} are equal
      * @since 0.1.6
      */
-    protected boolean is(Object a, Object b, String mess) {
+    public boolean is(Object a, Object b, String mess) {
         return is(a, b, mess, 1);
     }
 
@@ -1098,7 +1098,7 @@ public class TapTest
      * @return the same thing
      * @since 0.1.6
      */
-    protected boolean is(
+    public boolean is(
         Object a, Object b, String testName, int depth
     ) {
         StringBuilder mess = new StringBuilder();

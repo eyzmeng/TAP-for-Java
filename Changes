@@ -1,3 +1,6 @@
+0.2_02   2025 Apr 08
+    * Many methods are mistakenly labeled "protected".
+
 0.1.6_00 2025 Apr 07
 TAP v0.1 now enters maintenance status.  Its code
 will co-exist with @version 0.2 in this worktree,
