@@ -1,0 +1,41 @@
+HOWTO USE TAP FOR JAVA VERSION 0.2!
+
+here is an example how to use it (replace <CLASS> with your class):
+
+    public static void main(String[] args)
+    {
+        TapTest t = new TapTest();
+        int[] todo = TapTest.parse_cmd("java <CLASS>", args, 1, 2);
+        int[] plan = new int[todo.length];
+
+        /* Map todo to plan somehow... (this part is left to you) */
+
+        t.plan (plan);
+
+        int error;
+
+        /*
+         * You can also just pick the FALSE branch if you don't
+         * want fatal execution.  ~EX_BADPLAN makes bad subplans
+         * not fatal (though the error bit would still be set.)
+         */
+        if (DEBUG) {
+            error = t.runff(todo, plan, <CLASS>::new, ~TapTest.EX_BADPLAN);
+        }
+        else {
+            error = t.run(todo, plan, <CLASS>::new);
+        }
+
+        if (t.done_testing()) {
+            error |= TapTest.EX_BADPLAN;
+        }
+
+        /*
+         * I don't want things to quit when *we* plan is
+         * bad, so clear the EX_BADPLAN bit.
+         */
+        System.exit(error & ~TapTest.EX_BADPLAN);
+    }
+
+everything else remains the same. the difference is things are
+more modular *while* being robust enough to get stuff done :)

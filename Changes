@@ -1,8 +1,11 @@
-0.2_0?   (master)
+0.2_01   2025 Apr 07
+exec() is now split into plan(int[]), run() / runff()
+How? Why? read howto/ver0.2.txt to find out...
 
-   * Tell execv() to look for a TapTest argument
+XXX: runff() was meant for jdb(1) but i have no idea how
+to enter stack frames.  probably don't count on it... :(
 
-0.2_01   2025 Apr 05, 06
+0.2_00   2025 Apr 05, 06
 This is a second attempt that shifts away from the
 model of inheritance.  It tries to separate the test
 runner from the tests themselves.  The minor version
