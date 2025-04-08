@@ -1,4 +1,8 @@
 0.2_02   2025 Apr 08
+0.1.6_01
+   [[ COPYRIGHT TYPO fix in 0.1.6_01! Please use this instead of _00 ]]
+    - Some copyright jargon -- sorry!  But please just read the
+      header and actually do as I request... you will be fine. :)
     * Many methods are mistakenly labeled "protected".
     * An egregious bug that makes confess()'ing exception die of
       printf-format exception was caught, vanquished, and toasted
