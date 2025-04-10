@@ -10,6 +10,13 @@ here is an example how to use it (replace <CLASS> with your class):
          */
 
         int[] todo = TapTest.parse_cmd("java <CLASS>", args, START, AVAIL);
+        /*
+         * If parse_cmd returns something negative, parse had failed
+         * (e.g. user input out of range of the available tests)
+         */
+        if (todo.length == 1 && todo[0] < 0) {
+            System.exit(-todo[0]);
+        }
         int[] plan = new int[todo.length];
 
         /* Map todo to plan somehow... (this part is left to you) */
