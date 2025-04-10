@@ -729,6 +729,7 @@ public class TapTest
      *
      * @param plan your multitudinous list of plans
      * @return your best plan in aggregate
+     * @since 0.2.00_2
      */
     public int plan (int[] plan)
     {
