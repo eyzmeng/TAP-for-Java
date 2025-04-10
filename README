@@ -57,9 +57,71 @@ that requires more work than simply checking $?.
 
 See also <https://www.nntp.perl.org/group/perl.qa/2009/03/msg12104.html>.
 
+Another argument is the ability to run partial tests: each TAP test
+is either a file interpreted by perl(1) (if the +x bit is not set)
+or an execute (if, well, the +x bit is set).  In fact, you don't
+even need prove(1) to run the tests!  I imagine it is possible to
+run partial tests with JUnit too, but it definitely is not as
+straightforward.  (Of course, partial tests would undoubtedly be
+made possible by splitting tests across different classes, then
+use --select-class (-c) wisely (which I guess is what the creators
+of JUnit intended test classes to be organized).  The issue is that
+my CS class sucks and forces us to store all tests in a single file;
+so TAP tester would be my ticket out of this tyranny, not JUnit. ;)
+
+An argument for me, personally, is the ability to keep the test alive
+after one assertion fails.  Personally, I would like to believe that
+there is a reason behind every design choice; in this case, making
+each failure makes it much less of a headache to test a sequence of
+actions (object initialization, resource acquisition, socket connection
+and whatnot) that depend on each other; in other words, stages of a
+test suite that literally cannot continue because previous steps failed.
+In that sense, JUnit tests are, in the deepest sense, "assertions",
+because they immediately terminate the entire test with an error, so
+that subsequent steps that depend on it are effectively skipped.
+
+With TAP, you don't have to -- not to mention in many cases where
+assertions are more like "this object has the correct state" and not
+"this object exists", so they don't really interfere with each other.
+That isn't to say you can't; run() would catch unchecked exceptions
+and remind you to set an error status, which tells prove(1) to
+consider your test a fail.  So you have the choice to either raise
+an exception (or they call it `throw' in Java... right) or skip a
+portion of your test conditionally using skip(int, String, Object...):
+
+     // let's say `bee' is this dangerous resource that may fail
+     DangerousBee bee;
+     try {
+         bee = acquireBee();
+     }
+     catch (IOException e) {
+         bee = null;
+     }
+
+     // Option 1: exception
+     if (! ok (bee != null, "acquire Bee")) {
+         throw new IllegalStateException("ABORT! Bee was not acquired");
+     }
+     // then continue tests that require bee...
+
+     // Option 2: skip them
+     if (! ok (bee != null, "acquire Bee")) {
+         // tests that require bee
+     }
+     else {
+         skip (/* number of bee tests */, "did not acquire a bee");
+     }
+
+the emphasis here is that you *can* and it's up to you to decide.
+And that alone is enough reason to introduce Java to TAP for me. :)
+
 = Who for? =
 
 For me -- obviously. ;)
+
+(I am aware of my excessive use of smilies; though contrary to what
+you may be expecting, I will not apologize and you will have to put
+up with it :)
 
 Sorry, but that's the only way to explain why there are so many
 ridiculous constraints around.  The course staff in my CS class
